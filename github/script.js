@@ -1,26 +1,23 @@
-let input = document.getElementById("Input");
-let Button = document.getElementById("Button");
-let profile = document.querySelector(".profile");
+let usernameInputField = document.getElementById("Input");
+let searchButton = document.getElementById("Button");
+let userProfileCard = document.querySelector(".profile");
 
-Button.addEventListener("click", fetchprofile);
+searchButton.addEventListener("click", fetchGitHubProfile);
 
-async function fetchprofile() {
-    let username = input.value;
+async function fetchGitHubProfile() {
+    let targetUsername = usernameInputField.value;
     try {
-        const response = await fetch(`https://api.github.com/users/${username}`);
+        const githubResponse = await fetch(`https://api.github.com/users/${targetUsername}`);
         
-
-
-        if (!response.ok) {
-            throw new Error(`User not found (${response.status})`);
+        if (!githubResponse.ok) {
+            throw new Error(`User not found (${githubResponse.status})`);
         }
 
-        const data = await response.json();
+        const userData = await githubResponse.json();
 
-        document.querySelector('.img').src = data.avatar_url;
-        document.querySelector('.name').textContent = data.name || data.login;
-    } catch (error) {
-        
+        document.querySelector('.img').src = userData.avatar_url;
+        document.querySelector('.name').textContent = userData.name || userData.login;
+    } catch (requestError) {
 
     }
 }

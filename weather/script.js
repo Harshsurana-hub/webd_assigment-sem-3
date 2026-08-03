@@ -1,24 +1,22 @@
-function getWeather() {
-    const city = document.getElementById("city").value;
-    const result = document.getElementById("result");
+function fetchWeatherData() {
+    const cityInputField = document.getElementById("city").value;
+    const weatherResultDisplay = document.getElementById("result");
 
-    if (city === "") {
-        result.innerHTML = "Enter a city name";
+    if (cityInputField === "") {
+        weatherResultDisplay.innerHTML = "Enter a city name";
         return;
     }
 
-    const apiKey = "961b5dcd28eb8ab3f0aa3e578ac459ae";
- 
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
-        .then(res => res.json())
-        .then(data => {
-            
+    const openWeatherApiKey = "961b5dcd28eb8ab3f0aa3e578ac459ae";
 
-            result.innerHTML = `
-                <b>${data.name}</b><br>
-                Temp: ${data.main.temp}°C<br>
-                Humidity: ${data.main.humidity}%<br>
-                Weather: ${data.weather[0].description}
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityInputField}&appid=${openWeatherApiKey}&units=metric`)
+        .then(response => response.json())
+        .then(weatherData => {
+            weatherResultDisplay.innerHTML = `
+                <b>${weatherData.name}</b><br>
+                Temp: ${weatherData.main.temp}°C<br>
+                Humidity: ${weatherData.main.humidity}%<br>
+                Weather: ${weatherData.weather[0].description}
             `;
         });
 }
