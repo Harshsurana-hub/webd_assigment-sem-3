@@ -116,6 +116,10 @@
       <a href="/bookings/new/<%= venue._id %>" class="btn btn-primary btn-block">
         <i class="fas fa-calendar-plus"></i> Request Booking
       </a>
+    <% } else if (!isAuthenticated && venue.status === 'active') { %>
+      <a href="/login" class="btn btn-primary btn-block">
+        <i class="fas fa-sign-in-alt"></i> Login to Book Venue
+      </a>
     <% } %>
   </div>
 </div>

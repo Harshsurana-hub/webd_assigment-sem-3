@@ -94,13 +94,10 @@ const { requireOrganiser } = require('./middleware/role');
 
 // Home route
 app.get('/', (req, res) => {
-  if (!req.session.userId) {
-    return res.redirect('/login');
-  }
-  if (req.session.userRole === 'admin') {
+  if (req.session.userId && req.session.userRole === 'admin') {
     return res.redirect('/admin/dashboard');
   }
-  return res.redirect('/dashboard');
+  return res.redirect('/venues');
 });
 
 // Auth routes
