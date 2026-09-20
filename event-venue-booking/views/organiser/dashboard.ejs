@@ -1,0 +1,107 @@
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+    <p class="page-subtitle">Welcome back, <%= currentUser.name %>!</p>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
+    <div class="stat-info">
+      <h3><%= totalBookings %></h3>
+      <p>Total Bookings</p>
+    </div>
+  </div>
+  <div class="stat-card stat-amber">
+    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+    <div class="stat-info">
+      <h3><%= pendingBookings %></h3>
+      <p>Pending</p>
+    </div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+    <div class="stat-info">
+      <h3><%= approvedBookings %></h3>
+      <p>Approved</p>
+    </div>
+  </div>
+  <div class="stat-card stat-purple">
+    <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+    <div class="stat-info">
+      <h3><%= todaysEvents.length %></h3>
+      <p>Today's Events</p>
+    </div>
+  </div>
+</div>
+
+<% if (todaysEvents.length > 0) { %>
+  <div class="section-card">
+    <div class="section-header">
+      <h2><i class="fas fa-calendar-day"></i> Today's Events</h2>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Venue</th>
+            <th>Time</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% todaysEvents.forEach(event => { %>
+            <tr>
+              <td><strong><%= event.eventName %></strong></td>
+              <td><%= event.venue ? event.venue.name : 'N/A' %></td>
+              <td><%= event.startTime %> - <%= event.endTime %></td>
+              <td><span class="status-badge status-<%= event.status %>"><%= event.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } %>
+
+<div class="section-card">
+  <div class="section-header">
+    <h2><i class="fas fa-calendar-alt"></i> Upcoming Events</h2>
+    <a href="/my-bookings" class="btn btn-outline btn-sm">View All</a>
+  </div>
+  <% if (upcomingEvents.length > 0) { %>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Venue</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% upcomingEvents.forEach(event => { %>
+            <tr>
+              <td><strong><%= event.eventName %></strong></td>
+              <td><%= event.venue ? event.venue.name : 'N/A' %></td>
+              <td><%= new Date(event.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
+              <td><%= event.startTime %> - <%= event.endTime %></td>
+              <td><span class="status-badge status-<%= event.status %>"><%= event.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <i class="fas fa-calendar-plus"></i>
+      <h3>No upcoming events</h3>
+      <p>Browse venues and book your next event!</p>
+      <a href="/venues" class="btn btn-primary">Browse Venues</a>
+    </div>
+  <% } %>
+</div>

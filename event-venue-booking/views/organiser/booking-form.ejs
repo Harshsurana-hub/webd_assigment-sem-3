@@ -1,0 +1,167 @@
+<div class="page-header">
+  <div>
+    <a href="/venues/<%= venue._id %>" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Venue</a>
+    <h1><i class="fas fa-calendar-plus"></i> Book <%= venue.name %></h1>
+    <p class="page-subtitle"><i class="fas fa-map-marker-alt"></i> <%= venue.location %> &bull; Capacity: <%= venue.capacity %> &bull; ₹<%= venue.hourlyRate.toLocaleString('en-IN') %>/hr</p>
+  </div>
+</div>
+
+<div class="booking-form-grid">
+  <div class="section-card">
+    <h2>Event Details</h2>
+    <form action="/bookings" method="POST" class="booking-form" id="booking-form">
+      <input type="hidden" name="venueId" value="<%= venue._id %>">
+
+      <div class="form-group">
+        <label for="eventName"><i class="fas fa-tag"></i> Event Name *</label>
+        <input type="text" id="eventName" name="eventName" placeholder="e.g. Annual Tech Conference" required maxlength="200">
+      </div>
+
+      <div class="form-group">
+        <label for="eventDescription"><i class="fas fa-align-left"></i> Event Description</label>
+        <textarea id="eventDescription" name="eventDescription" rows="3" placeholder="Brief description of your event..." maxlength="2000"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="attendees"><i class="fas fa-users"></i> Expected Attendees *</label>
+          <input type="number" id="attendees" name="attendees" min="1" max="<%= venue.capacity %>" placeholder="Max: <%= venue.capacity %>" required>
+        </div>
+        <div class="form-group">
+          <label for="eventDate"><i class="fas fa-calendar"></i> Event Date *</label>
+          <input type="date" id="eventDate" name="eventDate" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startTime"><i class="fas fa-clock"></i> Start Time *</label>
+          <input type="time" id="startTime" name="startTime" required>
+        </div>
+        <div class="form-group">
+          <label for="endTime"><i class="fas fa-clock"></i> End Time *</label>
+          <input type="time" id="endTime" name="endTime" required>
+        </div>
+      </div>
+
+      <!-- Price Calculation -->
+      <div class="price-calculator" id="price-calculator" style="display:none;">
+        <div class="price-row">
+          <span>Duration</span>
+          <span id="calc-duration">-</span>
+        </div>
+        <div class="price-row">
+          <span>Rate</span>
+          <span>₹<%= venue.hourlyRate.toLocaleString('en-IN') %>/hr</span>
+        </div>
+        <div class="price-row price-total">
+          <span>Estimated Total</span>
+          <span id="calc-total">-</span>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg">
+        <i class="fas fa-paper-plane"></i> Submit Booking Request
+      </button>
+    </form>
+  </div>
+
+  <div class="booking-sidebar">
+    <div class="section-card">
+      <h3>Venue Info</h3>
+      <div class="venue-mini-card">
+        <img src="<%= venue.imageUrl || '/images/default-venue.jpg' %>" alt="<%= venue.name %>" onerror="this.src='/images/default-venue.jpg'">
+        <h4><%= venue.name %></h4>
+        <p><i class="fas fa-map-marker-alt"></i> <%= venue.location %></p>
+        <div class="venue-mini-details">
+          <span><i class="fas fa-users"></i> <%= venue.capacity %></span>
+          <span><i class="fas fa-rupee-sign"></i> ₹<%= venue.hourlyRate.toLocaleString('en-IN') %>/hr</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h3>Facilities</h3>
+      <div class="facilities-list">
+        <% venue.facilities.forEach(f => { %>
+          <span class="facility-tag"><i class="fas fa-check"></i> <%= f %></span>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if (typeof showAlternatives !== 'undefined' && showAlternatives) { %>
+  <div class="section-card alternatives-section">
+    <h2><i class="fas fa-exchange-alt"></i> Alternatives Available</h2>
+    <p class="text-muted">The venue is unavailable for the requested time. Here are some alternatives:</p>
+
+    <% if (typeof alternativeSlots !== 'undefined' && alternativeSlots.length > 0) { %>
+      <h3>Alternative Time Slots for <%= venue.name %></h3>
+      <div class="alternative-slots">
+        <% alternativeSlots.forEach(slot => { %>
+          <div class="alt-slot-card">
+            <span class="alt-time"><i class="fas fa-clock"></i> <%= slot.startTime %> - <%= slot.endTime %></span>
+            <a href="/bookings/new/<%= venue._id %>?startTime=<%= slot.startTime %>&endTime=<%= slot.endTime %>&date=<%= requestedDate %>" class="btn btn-outline btn-sm">Select</a>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if (typeof alternativeVenues !== 'undefined' && alternativeVenues.length > 0) { %>
+      <h3>Alternative Venues</h3>
+      <div class="venue-grid">
+        <% alternativeVenues.forEach(altVenue => { %>
+          <div class="venue-card venue-card-compact">
+            <div class="venue-card-body">
+              <h4><%= altVenue.name %></h4>
+              <p><i class="fas fa-map-marker-alt"></i> <%= altVenue.location %></p>
+              <div class="venue-card-meta">
+                <span><i class="fas fa-users"></i> <%= altVenue.capacity %></span>
+                <span>₹<%= altVenue.hourlyRate.toLocaleString('en-IN') %>/hr</span>
+              </div>
+              <p class="alt-total">Estimated: ₹<%= altVenue.estimatedTotal.toLocaleString('en-IN') %></p>
+              <a href="/bookings/new/<%= altVenue._id %>" class="btn btn-primary btn-sm btn-block">Book This</a>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+<% } %>
+
+<script>
+  // Price calculator
+  const hourlyRate = <%= venue.hourlyRate %>;
+  const startTimeInput = document.getElementById('startTime');
+  const endTimeInput = document.getElementById('endTime');
+  const calculator = document.getElementById('price-calculator');
+  const durationEl = document.getElementById('calc-duration');
+  const totalEl = document.getElementById('calc-total');
+  const dateInput = document.getElementById('eventDate');
+
+  // Set min date to today
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  dateInput.setAttribute('min', todayStr);
+
+  function updatePrice() {
+    const start = startTimeInput.value;
+    const end = endTimeInput.value;
+    if (start && end && start < end) {
+      const [sh, sm] = start.split(':').map(Number);
+      const [eh, em] = end.split(':').map(Number);
+      const durationMinutes = (eh * 60 + em) - (sh * 60 + sm);
+      const durationHours = durationMinutes / 60;
+      const total = Math.round(durationHours * hourlyRate * 100) / 100;
+      durationEl.textContent = durationHours.toFixed(1) + ' hours';
+      totalEl.textContent = '₹' + total.toLocaleString('en-IN');
+      calculator.style.display = 'block';
+    } else {
+      calculator.style.display = 'none';
+    }
+  }
+
+  startTimeInput.addEventListener('change', updatePrice);
+  endTimeInput.addEventListener('change', updatePrice);
+</script>

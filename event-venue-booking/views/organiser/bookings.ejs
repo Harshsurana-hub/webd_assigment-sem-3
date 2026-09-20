@@ -1,0 +1,97 @@
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-ticket-alt"></i> My Bookings</h1>
+    <p class="page-subtitle">View and manage your booking requests</p>
+  </div>
+  <a href="/venues" class="btn btn-primary">
+    <i class="fas fa-plus"></i> New Booking
+  </a>
+</div>
+
+<!-- Status Filters -->
+<div class="filter-tabs">
+  <a href="/my-bookings" class="filter-tab <%= currentFilter === 'all' ? 'active' : '' %>">All</a>
+  <a href="/my-bookings?status=pending" class="filter-tab <%= currentFilter === 'pending' ? 'active' : '' %>">
+    <i class="fas fa-clock"></i> Pending
+  </a>
+  <a href="/my-bookings?status=approved" class="filter-tab <%= currentFilter === 'approved' ? 'active' : '' %>">
+    <i class="fas fa-check"></i> Approved
+  </a>
+  <a href="/my-bookings?status=rejected" class="filter-tab <%= currentFilter === 'rejected' ? 'active' : '' %>">
+    <i class="fas fa-times"></i> Rejected
+  </a>
+  <a href="/my-bookings?status=cancelled" class="filter-tab <%= currentFilter === 'cancelled' ? 'active' : '' %>">
+    <i class="fas fa-ban"></i> Cancelled
+  </a>
+  <a href="/my-bookings?status=completed" class="filter-tab <%= currentFilter === 'completed' ? 'active' : '' %>">
+    <i class="fas fa-check-double"></i> Completed
+  </a>
+</div>
+
+<% if (bookings.length > 0) { %>
+  <div class="bookings-list">
+    <% bookings.forEach(booking => { %>
+      <div class="booking-card">
+        <div class="booking-card-header">
+          <div>
+            <h3><%= booking.eventName %></h3>
+            <p class="booking-venue">
+              <i class="fas fa-building"></i> <%= booking.venue ? booking.venue.name : 'Venue Deleted' %>
+            </p>
+          </div>
+          <span class="status-badge status-<%= booking.status %>"><%= booking.status %></span>
+        </div>
+
+        <div class="booking-card-details">
+          <div class="booking-detail">
+            <i class="fas fa-calendar"></i>
+            <span><%= new Date(booking.eventDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+          </div>
+          <div class="booking-detail">
+            <i class="fas fa-clock"></i>
+            <span><%= booking.startTime %> - <%= booking.endTime %></span>
+          </div>
+          <div class="booking-detail">
+            <i class="fas fa-users"></i>
+            <span><%= booking.attendees %> attendees</span>
+          </div>
+          <div class="booking-detail">
+            <i class="fas fa-rupee-sign"></i>
+            <span>₹<%= booking.totalAmount.toLocaleString('en-IN') %></span>
+          </div>
+        </div>
+
+        <% if (booking.status === 'rejected' && booking.rejectionReason) { %>
+          <div class="booking-rejection">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Rejection Reason:</strong> <%= booking.rejectionReason %>
+          </div>
+        <% } %>
+
+        <div class="booking-card-footer">
+          <span class="booking-created">
+            Booked on <%= new Date(booking.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+          </span>
+          <% if (['pending', 'approved'].includes(booking.status)) { %>
+            <form action="/bookings/<%= booking._id %>/cancel" method="POST" class="inline-form" onsubmit="return confirm('Are you sure you want to cancel this booking?')">
+              <button type="submit" class="btn btn-danger btn-sm">
+                <i class="fas fa-times"></i> Cancel
+              </button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } else { %>
+  <div class="empty-state">
+    <i class="fas fa-ticket-alt"></i>
+    <h3>No bookings found</h3>
+    <p>
+      <% if (currentFilter !== 'all') { %>
+        No <strong><%= currentFilter %></strong> bookings. <a href="/my-bookings">View all bookings</a> or
+      <% } %>
+      <a href="/venues">browse venues</a> to create your first booking.
+    </p>
+  </div>
+<% } %>

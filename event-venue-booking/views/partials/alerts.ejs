@@ -1,0 +1,19 @@
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="alert alert-success" id="alert-success">
+    <div class="alert-content">
+      <i class="fas fa-check-circle"></i>
+      <span><%= success %></span>
+    </div>
+    <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close">&times;</button>
+  </div>
+<% } %>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert alert-error" id="alert-error">
+    <div class="alert-content">
+      <i class="fas fa-exclamation-circle"></i>
+      <span><%= error %></span>
+    </div>
+    <button class="alert-close" onclick="this.parentElement.remove()" aria-label="Close">&times;</button>
+  </div>
+<% } %>

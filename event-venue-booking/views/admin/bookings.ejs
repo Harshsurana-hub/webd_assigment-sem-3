@@ -1,0 +1,156 @@
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-ticket-alt"></i> Manage Bookings</h1>
+    <p class="page-subtitle">Review, approve, or reject booking requests</p>
+  </div>
+</div>
+
+<!-- Status Filters -->
+<div class="filter-tabs">
+  <a href="/admin/bookings" class="filter-tab <%= currentFilter === 'all' ? 'active' : '' %>">All</a>
+  <a href="/admin/bookings?status=pending" class="filter-tab <%= currentFilter === 'pending' ? 'active' : '' %>">
+    <i class="fas fa-clock"></i> Pending
+  </a>
+  <a href="/admin/bookings?status=approved" class="filter-tab <%= currentFilter === 'approved' ? 'active' : '' %>">
+    <i class="fas fa-check"></i> Approved
+  </a>
+  <a href="/admin/bookings?status=rejected" class="filter-tab <%= currentFilter === 'rejected' ? 'active' : '' %>">
+    <i class="fas fa-times"></i> Rejected
+  </a>
+  <a href="/admin/bookings?status=cancelled" class="filter-tab <%= currentFilter === 'cancelled' ? 'active' : '' %>">
+    <i class="fas fa-ban"></i> Cancelled
+  </a>
+  <a href="/admin/bookings?status=completed" class="filter-tab <%= currentFilter === 'completed' ? 'active' : '' %>">
+    <i class="fas fa-check-double"></i> Completed
+  </a>
+</div>
+
+<% if (bookings.length > 0) { %>
+  <div class="table-responsive section-card">
+    <table class="data-table" id="bookings-table">
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th>Organiser</th>
+          <th>Venue</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Attendees</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% bookings.forEach(booking => { %>
+          <tr>
+            <td><strong><%= booking.eventName %></strong></td>
+            <td>
+              <div>
+                <div><%= booking.organiser ? booking.organiser.name : 'N/A' %></div>
+                <small class="text-muted"><%= booking.organiser ? booking.organiser.email : '' %></small>
+              </div>
+            </td>
+            <td><%= booking.venue ? booking.venue.name : 'Deleted' %></td>
+            <td><%= new Date(booking.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
+            <td><%= booking.startTime %> - <%= booking.endTime %></td>
+            <td><%= booking.attendees %></td>
+            <td>₹<%= booking.totalAmount.toLocaleString('en-IN') %></td>
+            <td><span class="status-badge status-<%= booking.status %>"><%= booking.status %></span></td>
+            <td>
+              <div class="action-buttons">
+                <% if (booking.status === 'pending') { %>
+                  <form action="/admin/bookings/<%= booking._id %>/approve" method="POST" class="inline-form">
+                    <button type="submit" class="btn btn-success btn-sm" title="Approve">
+                      <i class="fas fa-check"></i>
+                    </button>
+                  </form>
+                  <button type="button" class="btn btn-danger btn-sm reject-btn" title="Reject"
+                    onclick="openRejectModal('<%= booking._id %>', '<%= booking.eventName %>')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                <% } %>
+                <% if (['pending', 'approved'].includes(booking.status)) { %>
+                  <form action="/admin/bookings/<%= booking._id %>/cancel" method="POST" class="inline-form" onsubmit="return confirm('Cancel this booking?')">
+                    <button type="submit" class="btn btn-outline btn-sm" title="Cancel">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                  </form>
+                <% } %>
+                <% if (booking.status === 'approved') { %>
+                  <form action="/admin/bookings/<%= booking._id %>/complete" method="POST" class="inline-form">
+                    <button type="submit" class="btn btn-success btn-sm" title="Complete">
+                      <i class="fas fa-check-double"></i>
+                    </button>
+                  </form>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+          <% if (booking.status === 'rejected' && booking.rejectionReason) { %>
+            <tr class="rejection-row">
+              <td colspan="9">
+                <div class="booking-rejection-inline">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <strong>Reason:</strong> <%= booking.rejectionReason %>
+                </div>
+              </td>
+            </tr>
+          <% } %>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } else { %>
+  <div class="empty-state">
+    <i class="fas fa-ticket-alt"></i>
+    <h3>No bookings found</h3>
+    <p>
+      <% if (currentFilter !== 'all') { %>
+        No <strong><%= currentFilter %></strong> bookings. <a href="/admin/bookings">View all bookings</a>.
+      <% } else { %>
+        No booking requests yet.
+      <% } %>
+    </p>
+  </div>
+<% } %>
+
+<!-- Reject Modal -->
+<div class="modal-overlay" id="reject-modal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3><i class="fas fa-times-circle"></i> Reject Booking</h3>
+      <button class="modal-close" onclick="closeRejectModal()">&times;</button>
+    </div>
+    <form id="reject-form" method="POST">
+      <div class="modal-body">
+        <p>Rejecting booking: <strong id="reject-event-name"></strong></p>
+        <div class="form-group">
+          <label for="rejectionReason">Rejection Reason *</label>
+          <textarea id="rejectionReason" name="rejectionReason" rows="3" required placeholder="Provide a reason for rejection..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeRejectModal()">Cancel</button>
+        <button type="submit" class="btn btn-danger">Reject Booking</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openRejectModal(bookingId, eventName) {
+    document.getElementById('reject-modal').style.display = 'flex';
+    document.getElementById('reject-form').action = '/admin/bookings/' + bookingId + '/reject';
+    document.getElementById('reject-event-name').textContent = eventName;
+    document.getElementById('rejectionReason').value = '';
+    document.getElementById('rejectionReason').focus();
+  }
+  function closeRejectModal() {
+    document.getElementById('reject-modal').style.display = 'none';
+  }
+  // Close on overlay click
+  document.getElementById('reject-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeRejectModal();
+  });
+</script>

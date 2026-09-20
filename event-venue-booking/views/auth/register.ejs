@@ -1,0 +1,47 @@
+<div class="auth-card">
+  <div class="auth-header">
+    <div class="auth-logo">
+      <i class="fas fa-calendar-check"></i>
+    </div>
+    <h1>Create Account</h1>
+    <p>Join EventBook as an event organiser</p>
+  </div>
+
+  <form action="/register" method="POST" class="auth-form">
+    <div class="form-group">
+      <label for="name">
+        <i class="fas fa-user"></i> Full Name
+      </label>
+      <input type="text" id="name" name="name" placeholder="Enter your full name" required autofocus minlength="2">
+    </div>
+
+    <div class="form-group">
+      <label for="email">
+        <i class="fas fa-envelope"></i> Email Address
+      </label>
+      <input type="email" id="email" name="email" placeholder="Enter your email" required>
+    </div>
+
+    <div class="form-group">
+      <label for="password">
+        <i class="fas fa-lock"></i> Password
+      </label>
+      <input type="password" id="password" name="password" placeholder="Minimum 6 characters" required minlength="6">
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">
+        <i class="fas fa-lock"></i> Confirm Password
+      </label>
+      <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required minlength="6">
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">
+      <i class="fas fa-user-plus"></i> Create Account
+    </button>
+  </form>
+
+  <div class="auth-footer">
+    <p>Already have an account? <a href="/login">Sign in here</a></p>
+  </div>
+</div>

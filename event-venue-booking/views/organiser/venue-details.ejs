@@ -1,0 +1,121 @@
+<div class="page-header">
+  <div>
+    <a href="/venues" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Venues</a>
+    <h1><%= venue.name %></h1>
+    <p class="page-subtitle"><i class="fas fa-map-marker-alt"></i> <%= venue.location %></p>
+  </div>
+  <% if (isOrganiser && venue.status === 'active') { %>
+    <a href="/bookings/new/<%= venue._id %>" class="btn btn-primary">
+      <i class="fas fa-calendar-plus"></i> Request Booking
+    </a>
+  <% } %>
+</div>
+
+<div class="venue-detail-grid">
+  <!-- Main Info -->
+  <div class="venue-detail-main">
+    <div class="venue-detail-image">
+      <img src="<%= venue.imageUrl || '/images/default-venue.jpg' %>" alt="<%= venue.name %>" onerror="this.src='/images/default-venue.jpg'">
+    </div>
+
+    <div class="section-card">
+      <h2>About this Venue</h2>
+      <p class="venue-description"><%= venue.description %></p>
+    </div>
+
+    <!-- Availability Calendar -->
+    <div class="section-card">
+      <h2><i class="fas fa-calendar-alt"></i> Upcoming Bookings</h2>
+      <% if (bookings.length > 0) { %>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% bookings.forEach(b => { %>
+                <tr>
+                  <td><%= new Date(b.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
+                  <td><%= b.startTime %> - <%= b.endTime %></td>
+                  <td><span class="status-badge status-<%= b.status %>"><%= b.status %></span></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p class="text-muted">No upcoming bookings. This venue is available!</p>
+      <% } %>
+    </div>
+
+    <% if (blocks.length > 0) { %>
+      <div class="section-card">
+        <h2><i class="fas fa-ban"></i> Blocked Periods</h2>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% blocks.forEach(block => { %>
+                <tr>
+                  <td><%= new Date(block.startDateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
+                  <td><%= new Date(block.endDateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
+                  <td><%= block.reason %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Sidebar Info -->
+  <div class="venue-detail-sidebar">
+    <div class="section-card">
+      <h3>Venue Details</h3>
+      <div class="detail-list">
+        <div class="detail-item">
+          <span class="detail-label"><i class="fas fa-users"></i> Capacity</span>
+          <span class="detail-value"><%= venue.capacity %> people</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label"><i class="fas fa-rupee-sign"></i> Hourly Rate</span>
+          <span class="detail-value venue-rate">₹<%= venue.hourlyRate.toLocaleString('en-IN') %>/hr</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label"><i class="fas fa-info-circle"></i> Status</span>
+          <span class="status-badge status-<%= venue.status %>"><%= venue.status %></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h3>Facilities</h3>
+      <div class="facilities-list">
+        <% if (venue.facilities && venue.facilities.length > 0) { %>
+          <% venue.facilities.forEach(f => { %>
+            <span class="facility-tag"><i class="fas fa-check"></i> <%= f %></span>
+          <% }) %>
+        <% } else { %>
+          <p class="text-muted">No facilities listed.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <% if (isOrganiser && venue.status === 'active') { %>
+      <a href="/bookings/new/<%= venue._id %>" class="btn btn-primary btn-block">
+        <i class="fas fa-calendar-plus"></i> Request Booking
+      </a>
+    <% } %>
+  </div>
+</div>
